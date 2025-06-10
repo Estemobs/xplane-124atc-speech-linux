@@ -10,16 +10,44 @@ XPLANE_LOG_PATH = '/home/estemobs/.steam/steam/steamapps/common/X-Plane 11/Log.t
 # Mot-clé pour identifier les messages ATC 124th
 ATC_KEYWORD = "124thATC"
 
+# Dictionnaire alphabet phonétique OTAN
+PHONETIC_DICT = {
+    'A': 'Alpha',   'B': 'Bravo',    'C': 'Charlie', 'D': 'Delta',
+    'E': 'Echo',    'F': 'Foxtrot',  'G': 'Golf',    'H': 'Hotel',
+    'I': 'India',   'J': 'Juliett',  'K': 'Kilo',    'L': 'Lima',
+    'M': 'Mike',    'N': 'November', 'O': 'Oscar',   'P': 'Papa',
+    'Q': 'Quebec',  'R': 'Romeo',    'S': 'Sierra',  'T': 'Tango',
+    'U': 'Uniform', 'V': 'Victor',   'W': 'Whiskey', 'X': 'X-ray',
+    'Y': 'Yankee',  'Z': 'Zulu'  
+}
+
+def to_phonetic(text):
+    # Transforme chaque lettre/chiffre en phonétique, laisse les espaces
+    return ' '.join(PHONETIC_DICT.get(char, char) for char in text if char != ' ')
+
+def replace_callsign_with_phonetic(message):
+    # Cherche le callsign avant ou après la virgule
+    # Exemples : "CFJ 05, turn right heading 036." ou "Turn right heading 036, CFJ 05"
+    match = re.search(r'([A-Z]{2,}\s?\d{1,3})[,\.]', message)
+    if not match:
+        match = re.search(r'[,\.]\s*([A-Z]{2,}\s?\d{1,3})', message)
+    if match:
+        callsign = match.group(1)
+        phonetic = to_phonetic(callsign.replace(' ', ''))
+        # Remplace le callsign par sa version phonétique dans le message
+        return message.replace(callsign, phonetic)
+    return message
 
 # --- Fonction pour lire le message avec speech-dispatcher ---
 def speak(text):
     print(f"Tentative de lecture : '{text}'")
     try:
-        # La commande 'spd-say' est l'interface en ligne de commande pour speech-dispatcher
+        # Ajoute la conversion phonétique du callsign
+        text = replace_callsign_with_phonetic(text)
         subprocess.run(['flite', '-t', text], check=True)
         print("Message lu avec succès.")
     except FileNotFoundError:
-        print("Erreur : 'spd-say' n'a pas été trouvé. Assurez-vous que speech-dispatcher est installé et dans votre PATH.")
+        print("Erreur : 'spd-say' n'a pas été trouvé. Assurez-vous que speech-dispatcher est installé.")
     except subprocess.CalledProcessError as e:
         print(f"Erreur lors de l'appel à spd-say : {e}")
     except Exception as e:
