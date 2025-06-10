@@ -47,7 +47,7 @@ def speak(text):
         subprocess.run(['flite', '-t', text], check=True)
         print("Message lu avec succès.")
     except FileNotFoundError:
-        print("Erreur : 'spd-say' n'a pas été trouvé. Assurez-vous que speech-dispatcher est installé.")
+        print("Erreur : 'flite' n'a pas été trouvé. Assurez-vous que flite est installé.")
     except subprocess.CalledProcessError as e:
         print(f"Erreur lors de l'appel à spd-say : {e}")
     except Exception as e:
