@@ -1,4 +1,4 @@
-# xplane-124atc-speech
+# xplane-124atc-speech-linux
 
 Un script Python simple pour lire vocalement les messages ATC du plugin 124thATC de X-Plane 11 directement depuis le fichier `Log.txt`.
 
